@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from sculpin_regjeringen.crawler.attachment_downloader import AttachmentDownloadManifest
 from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
 from sculpin_regjeringen.storage.local_metadata_store import (
@@ -38,6 +39,7 @@ class HearingArtifactManifest(BaseModel):
     source_artifact_uri: str
     html_checksum_sha256: str
     artifacts: list[ArtifactRecord] = Field(default_factory=list)
+    attachment_downloads: AttachmentDownloadManifest | None = None
     metadata: MetadataUpsertResult | None = None
 
 
@@ -55,6 +57,7 @@ def write_hearing_fixture_artifacts(
     object_store: LocalObjectStore,
     metadata_store: LocalJsonMetadataStore | None = None,
     source_url: str | None = None,
+    attachment_downloads: AttachmentDownloadManifest | None = None,
 ) -> HearingArtifactResult:
     """Parse a hearing fixture and write immutable local artifacts."""
 
@@ -142,6 +145,7 @@ def write_hearing_fixture_artifacts(
         source_artifact_uri=raw_object.uri,
         html_checksum_sha256=raw_object.checksum_sha256,
         artifacts=artifacts,
+        attachment_downloads=attachment_downloads,
         metadata=metadata_result,
     )
     manifest_bytes = manifest.model_dump_json(indent=2).encode("utf-8")

@@ -40,8 +40,7 @@ sculpin-regjeringen export-graph --fixture tests/fixtures/regjeringen/hearings/i
 sculpin-regjeringen export-graph --document-json tmp/document.json --output tmp/document.ttl
 ```
 
-Planned later CLI work includes attachment downloading, production metadata storage,
-PDF/DOCX text extraction, graph publication to Sculpin, and agent-facing search tools.
+The current production slice adds fixture/test-backed attachment downloading and a PostgreSQL metadata schema under `schema/postgres/001_metadata.sql`. Planned later CLI work includes production batch orchestration, PDF/DOCX text extraction, graph publication to Sculpin, and agent-facing search tools.
 
 ## Local fixture-to-graph workflow
 
@@ -57,8 +56,7 @@ sculpin-regjeringen process-fixture \
 ```
 
 This writes raw HTML, canonical `document.json`, section text files, and a manifest to
-a local SHA-256 content-addressed object layout. Attachment files remain metadata-only
-until the downloader phase. The graph export contains metadata and source/text-object
+a local SHA-256 content-addressed object layout. Attachment files can now be downloaded by the attachment downloader into content-addressed object storage; fixture processing still leaves them metadata-only unless that downloader is invoked. The graph export contains metadata and source/text-object
 pointers only; raw HTML, section text, attachment bytes, extracted full text, and chunks
 remain outside the graph.
 
