@@ -9,6 +9,7 @@ from typer.testing import CliRunner
 from sculpin_regjeringen.cli import app
 from sculpin_regjeringen.crawler.attachment_downloader import AttachmentDownloadOptions
 from sculpin_regjeringen.crawler.fetcher import FetchResult
+from sculpin_regjeringen.crawler.robots import CrawlPolicy, build_robots_parser
 from sculpin_regjeringen.graph.mapping import SCGOV, document_to_graph, serialize_document_turtle
 from sculpin_regjeringen.storage.artifacts import (
     process_hearing_fixture,
@@ -197,3 +198,31 @@ async def test_process_fixture_downloads_before_document_metadata_and_graph(tmp_
     assert attachment.object_uri in turtle
     assert "%PDF-1.7 pipeline bytes" not in turtle
     assert FULL_HEARING_LETTER_TEXT not in turtle
+
+
+@pytest.mark.anyio
+async def test_process_fixture_persists_policy_skip_download_events(tmp_path: Path) -> None:
+    object_store = LocalObjectStore(tmp_path / "objects")
+    metadata_store = LocalJsonMetadataStore(tmp_path / "metadata" / "metadata.json")
+    robots = build_robots_parser(
+        "https://www.regjeringen.no/robots.txt", "User-agent: *\nDisallow: /"
+    )
+
+    result = await process_hearing_fixture(
+        FIXTURE,
+        object_store=object_store,
+        metadata_store=metadata_store,
+        attachment_fetcher=PipelineFakeAttachmentFetcher(),
+        attachment_options=AttachmentDownloadOptions(
+            policy=CrawlPolicy(robots=robots, user_agent="test")
+        ),
+    )
+
+    assert result.manifest.attachment_downloads
+    download_result = result.manifest.attachment_downloads.results[0]
+    assert download_result.status == "skipped"
+    assert download_result.skipped_reason == "crawl_policy_rejected"
+    metadata = metadata_store._read()
+    event = next(iter(metadata["attachment_download_events"].values()))
+    assert event["status"] == "skipped"
+    assert event["skipped_reason"] == "crawl_policy_rejected"

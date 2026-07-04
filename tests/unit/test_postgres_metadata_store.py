@@ -1,3 +1,5 @@
+import importlib
+import importlib.util
 import os
 from pathlib import Path
 
@@ -7,13 +9,14 @@ from sculpin_regjeringen.crawler.attachment_downloader import AttachmentDownload
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
 from sculpin_regjeringen.storage.postgres import PostgresMetadataStore
 
-psycopg = pytest.importorskip("psycopg")
-
 FIXTURE = Path("tests/fixtures/regjeringen/hearings/id3167072/page.html")
 POSTGRES_DSN = os.environ.get("REGJERINGEN_TEST_POSTGRES_DSN")
 pytestmark = pytest.mark.skipif(
     POSTGRES_DSN is None, reason="REGJERINGEN_TEST_POSTGRES_DSN is not set"
 )
+if POSTGRES_DSN is not None:
+    assert importlib.util.find_spec("psycopg") is not None, "psycopg is required in CI"
+psycopg = importlib.import_module("psycopg") if POSTGRES_DSN is not None else None
 
 
 def _document():
@@ -34,6 +37,7 @@ def _document():
 
 def test_postgres_metadata_store_upsert_is_idempotent_and_preserves_provenance() -> None:
     assert POSTGRES_DSN is not None
+    assert psycopg is not None
     connection = psycopg.connect(POSTGRES_DSN)
     connection.execute("DROP SCHEMA public CASCADE")
     connection.execute("CREATE SCHEMA public")
