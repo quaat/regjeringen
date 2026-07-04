@@ -9,10 +9,17 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from sculpin_regjeringen.crawler.attachment_downloader import (
+    AttachmentDownloadManifest,
+    AttachmentDownloadOptions,
+    AttachmentFetcher,
+    download_document_attachments,
+)
 from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
 from sculpin_regjeringen.storage.local_metadata_store import (
     LocalJsonMetadataStore,
+    MetadataStore,
     MetadataUpsertResult,
 )
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore, StoredObject
@@ -38,6 +45,7 @@ class HearingArtifactManifest(BaseModel):
     source_artifact_uri: str
     html_checksum_sha256: str
     artifacts: list[ArtifactRecord] = Field(default_factory=list)
+    attachment_downloads: AttachmentDownloadManifest | None = None
     metadata: MetadataUpsertResult | None = None
 
 
@@ -49,14 +57,16 @@ class HearingArtifactResult:
     document_json_uri: str
 
 
-def write_hearing_fixture_artifacts(
+async def process_hearing_fixture(
     fixture: Path,
     *,
     object_store: LocalObjectStore,
-    metadata_store: LocalJsonMetadataStore | None = None,
+    metadata_store: MetadataStore | None = None,
     source_url: str | None = None,
+    attachment_fetcher: AttachmentFetcher | None = None,
+    attachment_options: AttachmentDownloadOptions | None = None,
 ) -> HearingArtifactResult:
-    """Parse a hearing fixture and write immutable local artifacts."""
+    """Parse a fixture, optionally download attachments, and persist updated outputs."""
 
     html = fixture.read_text(encoding="utf-8")
     html_bytes = html.encode("utf-8")
@@ -75,6 +85,16 @@ def write_hearing_fixture_artifacts(
         source_url=parse_source_url,
         source_artifact_uri=raw_object.uri,
     )
+
+    attachment_downloads = None
+    if attachment_fetcher is not None:
+        attachment_downloads = await download_document_attachments(
+            document,
+            fetcher=attachment_fetcher,
+            object_store=object_store,
+            options=attachment_options,
+        )
+
     artifacts = [
         _artifact_record(
             role="raw_html",
@@ -131,6 +151,7 @@ def write_hearing_fixture_artifacts(
             parser_version=parser.parser_version,
             source_artifact_uri=raw_object.uri,
             processed_at=processed_at,
+            attachment_downloads=attachment_downloads,
         )
 
     manifest = HearingArtifactManifest(
@@ -142,6 +163,7 @@ def write_hearing_fixture_artifacts(
         source_artifact_uri=raw_object.uri,
         html_checksum_sha256=raw_object.checksum_sha256,
         artifacts=artifacts,
+        attachment_downloads=attachment_downloads,
         metadata=metadata_result,
     )
     manifest_bytes = manifest.model_dump_json(indent=2).encode("utf-8")
@@ -155,6 +177,27 @@ def write_hearing_fixture_artifacts(
         manifest=manifest,
         manifest_uri=manifest_object.uri,
         document_json_uri=document_object.uri,
+    )
+
+
+def write_hearing_fixture_artifacts(
+    fixture: Path,
+    *,
+    object_store: LocalObjectStore,
+    metadata_store: LocalJsonMetadataStore | None = None,
+    source_url: str | None = None,
+) -> HearingArtifactResult:
+    """Parse a hearing fixture and write immutable local artifacts without live downloads."""
+
+    import asyncio
+
+    return asyncio.run(
+        process_hearing_fixture(
+            fixture,
+            object_store=object_store,
+            metadata_store=metadata_store,
+            source_url=source_url,
+        )
     )
 
 

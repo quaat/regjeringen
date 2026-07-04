@@ -1,12 +1,20 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import DCTERMS, RDF
 from typer.testing import CliRunner
 
 from sculpin_regjeringen.cli import app
+from sculpin_regjeringen.crawler.attachment_downloader import AttachmentDownloadOptions
+from sculpin_regjeringen.crawler.fetcher import FetchResult
+from sculpin_regjeringen.crawler.robots import CrawlPolicy, build_robots_parser
 from sculpin_regjeringen.graph.mapping import SCGOV, document_to_graph, serialize_document_turtle
-from sculpin_regjeringen.storage.artifacts import write_hearing_fixture_artifacts
+from sculpin_regjeringen.storage.artifacts import (
+    process_hearing_fixture,
+    write_hearing_fixture_artifacts,
+)
 from sculpin_regjeringen.storage.local_metadata_store import LocalJsonMetadataStore
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore
 
@@ -137,3 +145,84 @@ def test_process_fixture_and_export_graph_cli(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0
     assert json_graph.exists()
+
+
+class PipelineFakeAttachmentFetcher:
+    async def fetch(self, url: str) -> FetchResult:
+        return FetchResult(
+            request_url=url,
+            final_url=url,
+            status_code=200,
+            headers={"Content-Type": "application/pdf"},
+            body=b"%PDF-1.7 pipeline bytes\n",
+            fetched_at=datetime.now(UTC),
+            redirect_chain=[],
+        )
+
+
+@pytest.mark.anyio
+async def test_process_fixture_downloads_before_document_metadata_and_graph(tmp_path: Path) -> None:
+    object_store = LocalObjectStore(tmp_path / "objects")
+    metadata_store = LocalJsonMetadataStore(tmp_path / "metadata" / "metadata.json")
+
+    result = await process_hearing_fixture(
+        FIXTURE,
+        object_store=object_store,
+        metadata_store=metadata_store,
+        attachment_fetcher=PipelineFakeAttachmentFetcher(),
+        attachment_options=AttachmentDownloadOptions(),
+    )
+
+    attachment = result.document.attachments[0]
+    assert attachment.checksum_sha256
+    assert attachment.size_bytes == len(b"%PDF-1.7 pipeline bytes\n")
+    assert attachment.media_type == "application/pdf"
+    assert attachment.final_url == attachment.source_url
+    assert attachment.object_uri
+    assert result.manifest.attachment_downloads
+    assert result.manifest.attachment_downloads.results[0].status == "downloaded"
+
+    document_json = object_store.get_bytes(result.document_json_uri).decode("utf-8")
+    assert attachment.checksum_sha256 in document_json
+    assert attachment.object_uri in document_json
+
+    metadata = metadata_store._read()
+    stored_attachment = metadata["attachments"][attachment.attachment_id]
+    assert stored_attachment["checksum_sha256"] == attachment.checksum_sha256
+    assert stored_attachment["object_uri"] == attachment.object_uri
+    assert metadata["attachment_download_events"]
+
+    graph = document_to_graph(result.document)
+    turtle = graph.serialize(format="turtle")
+    assert "objectUri" in turtle
+    assert attachment.object_uri in turtle
+    assert "%PDF-1.7 pipeline bytes" not in turtle
+    assert FULL_HEARING_LETTER_TEXT not in turtle
+
+
+@pytest.mark.anyio
+async def test_process_fixture_persists_policy_skip_download_events(tmp_path: Path) -> None:
+    object_store = LocalObjectStore(tmp_path / "objects")
+    metadata_store = LocalJsonMetadataStore(tmp_path / "metadata" / "metadata.json")
+    robots = build_robots_parser(
+        "https://www.regjeringen.no/robots.txt", "User-agent: *\nDisallow: /"
+    )
+
+    result = await process_hearing_fixture(
+        FIXTURE,
+        object_store=object_store,
+        metadata_store=metadata_store,
+        attachment_fetcher=PipelineFakeAttachmentFetcher(),
+        attachment_options=AttachmentDownloadOptions(
+            policy=CrawlPolicy(robots=robots, user_agent="test")
+        ),
+    )
+
+    assert result.manifest.attachment_downloads
+    download_result = result.manifest.attachment_downloads.results[0]
+    assert download_result.status == "skipped"
+    assert download_result.skipped_reason == "crawl_policy_rejected"
+    metadata = metadata_store._read()
+    event = next(iter(metadata["attachment_download_events"].values()))
+    assert event["status"] == "skipped"
+    assert event["skipped_reason"] == "crawl_policy_rejected"

@@ -40,8 +40,7 @@ sculpin-regjeringen export-graph --fixture tests/fixtures/regjeringen/hearings/i
 sculpin-regjeringen export-graph --document-json tmp/document.json --output tmp/document.ttl
 ```
 
-Planned later CLI work includes attachment downloading, production metadata storage,
-PDF/DOCX text extraction, graph publication to Sculpin, and agent-facing search tools.
+The current production slice adds fixture/test-backed attachment downloading and a PostgreSQL metadata schema under `schema/postgres/001_metadata.sql`. Planned later CLI work includes production batch orchestration, PDF/DOCX text extraction, graph publication to Sculpin, and agent-facing search tools.
 
 ## Local fixture-to-graph workflow
 
@@ -56,11 +55,9 @@ sculpin-regjeringen process-fixture \
   --graph-output tmp/id3167072.ttl
 ```
 
-This writes raw HTML, canonical `document.json`, section text files, and a manifest to
-a local SHA-256 content-addressed object layout. Attachment files remain metadata-only
-until the downloader phase. The graph export contains metadata and source/text-object
-pointers only; raw HTML, section text, attachment bytes, extracted full text, and chunks
-remain outside the graph.
+By default this remains offline: it writes raw HTML, canonical `document.json`, section text files, and a manifest to a local SHA-256 content-addressed object layout without fetching attachment bytes. Enable live attachment downloads explicitly with `--download-attachments` and, for tests or strict runs, optionally `--attachment-fail-fast`. Live downloads respect robots policy by default; use `--no-respect-robots` only for controlled tests.
+
+Downloaded attachments are stored as immutable object-store bytes and the canonical document records only `final_url`, `checksum_sha256`, `size_bytes`, `media_type`, and `object_uri`. PostgreSQL stores normalized document metadata, attachment metadata, provenance, extraction runs, and attachment download events. Graph export contains metadata plus source/object pointers only; raw HTML, section text, attachment bytes, extracted full text, and chunks remain outside the graph.
 
 Idempotency boundary for this local workflow:
 
