@@ -14,12 +14,16 @@ from sculpin_regjeringen.crawler.fetcher import HttpxFetcher
 from sculpin_regjeringen.crawler.robots import CrawlPolicy, build_robots_parser
 from sculpin_regjeringen.crawler.source_audit import SourceAuditOptions, run_source_audit_sync
 from sculpin_regjeringen.graph.mapping import serialize_document_turtle
+from sculpin_regjeringen.ingest_hearings import (
+    HearingBatchIngestionOptions,
+    run_hearing_batch_ingestion,
+)
 from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
 from sculpin_regjeringen.storage.artifacts import (
     process_hearing_fixture,
 )
-from sculpin_regjeringen.storage.local_metadata_store import LocalJsonMetadataStore
+from sculpin_regjeringen.storage.local_metadata_store import LocalJsonMetadataStore, MetadataStore
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore
 
 app = typer.Typer(help="Ingest and organize regjeringen.no documents for Sculpin.")
@@ -129,6 +133,96 @@ def process_fixture(
             f"Metadata version: {result.manifest.metadata.version_id} "
             f"inserted={result.manifest.metadata.inserted_version}"
         )
+
+
+@app.command("ingest-hearings")
+def ingest_hearings(
+    urls: Annotated[list[str] | None, typer.Option("--url")] = None,
+    url_file: Annotated[Path | None, typer.Option(exists=True, dir_okay=False)] = None,
+    artifact_root: Annotated[Path, typer.Option()] = Path("data/local-artifacts"),
+    metadata_db: Annotated[Path | None, typer.Option()] = None,
+    postgres_dsn: Annotated[str | None, typer.Option()] = None,
+    graph_output_dir: Annotated[Path | None, typer.Option()] = None,
+    download_attachments: Annotated[
+        bool, typer.Option("--download-attachments/--no-download-attachments")
+    ] = False,
+    attachment_fail_fast: Annotated[
+        bool, typer.Option("--attachment-fail-fast/--no-attachment-fail-fast")
+    ] = False,
+    respect_robots: Annotated[bool, typer.Option("--respect-robots/--no-respect-robots")] = True,
+    user_agent: Annotated[str, typer.Option()] = (
+        "sculpin-regjeringen-ingest/0.1 (+https://github.com/quaat/regjeringen)"
+    ),
+    max_pages: Annotated[int | None, typer.Option(min=1)] = None,
+    concurrency: Annotated[int, typer.Option(min=1, max=16)] = 2,
+    request_timeout_seconds: Annotated[float, typer.Option(min=1.0)] = 30.0,
+    fail_fast: Annotated[bool, typer.Option("--fail-fast/--no-fail-fast")] = False,
+) -> None:
+    """Fetch and ingest explicit regjeringen.no hearing URLs or a newline URL file."""
+
+    supplied_urls = list(urls or [])
+    if url_file is not None:
+        supplied_urls.extend(
+            line.strip() for line in url_file.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        )
+    if not supplied_urls:
+        typer.echo("Provide at least one --url or --url-file.", err=True)
+        raise typer.Exit(code=2)
+    if postgres_dsn is not None and metadata_db is not None:
+        typer.echo("Use only one of --postgres-dsn or --metadata-db.", err=True)
+        raise typer.Exit(code=2)
+
+    metadata_store: MetadataStore | None = None
+    metadata_backend = "none"
+    if postgres_dsn is not None:
+        from sculpin_regjeringen.storage.postgres import PostgresMetadataStore
+
+        metadata_store = PostgresMetadataStore(postgres_dsn)
+        metadata_store.apply_schema()
+        metadata_backend = "postgres"
+    elif metadata_db is not None:
+        metadata_store = LocalJsonMetadataStore(metadata_db)
+        metadata_backend = "local-json"
+
+    policy = _live_crawl_policy(user_agent) if respect_robots else None
+    fetcher = HttpxFetcher(user_agent=user_agent, timeout_seconds=request_timeout_seconds)
+    summary = asyncio.run(
+        run_hearing_batch_ingestion(
+            HearingBatchIngestionOptions(
+                seed_urls=tuple(supplied_urls),
+                artifact_root=artifact_root,
+                postgres_dsn=postgres_dsn,
+                metadata_json=metadata_db,
+                graph_output_dir=graph_output_dir,
+                download_attachments=download_attachments,
+                attachment_fail_fast=attachment_fail_fast,
+                respect_robots=respect_robots,
+                user_agent=user_agent,
+                max_pages=max_pages,
+                concurrency=concurrency,
+                request_timeout_seconds=request_timeout_seconds,
+                fail_fast=fail_fast,
+            ),
+            page_fetcher=fetcher,
+            attachment_fetcher=fetcher if download_attachments else None,
+            metadata_store=metadata_store,
+            crawl_policy=policy,
+        )
+    )
+    close = getattr(metadata_store, "close", None)
+    if close is not None:
+        close()
+    typer.echo(f"Pages attempted: {summary.pages_attempted}")
+    typer.echo(f"Pages succeeded: {summary.pages_succeeded}")
+    typer.echo(f"Pages failed: {summary.pages_failed}")
+    typer.echo(f"Attachments downloaded: {summary.attachments_downloaded}")
+    typer.echo(f"Attachments skipped: {summary.attachments_skipped}")
+    typer.echo(f"Attachments failed: {summary.attachments_failed}")
+    typer.echo(f"Metadata backend: {metadata_backend}")
+    typer.echo(f"Artifact root: {artifact_root}")
+    typer.echo(f"Graph output directory: {graph_output_dir or 'not written'}")
+    typer.echo(f"Batch manifest: {summary.manifest_uri}")
 
 
 @app.command("export-graph")
