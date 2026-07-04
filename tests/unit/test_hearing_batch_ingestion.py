@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pytest
 
@@ -35,6 +38,27 @@ class FakeFetcher:
         )
 
 
+class RawBytesFetcher:
+    def __init__(self, body: bytes, content_type: str) -> None:
+        self.body = body
+        self.content_type = content_type
+
+    async def fetch(self, url: str) -> FetchResult:
+        return FetchResult(
+            request_url=url,
+            final_url=url,
+            status_code=200,
+            headers={"content-type": self.content_type},
+            body=self.body,
+            fetched_at=datetime.now(UTC),
+        )
+
+
+class RaisingAttachmentFetcher:
+    async def fetch(self, url: str) -> FetchResult:
+        raise AssertionError(f"attachment fetcher should not be called for {url}")
+
+
 @pytest.mark.anyio
 async def test_single_hearing_success_writes_artifacts_metadata_and_graph(
     tmp_path: Path,
@@ -64,6 +88,32 @@ async def test_single_hearing_success_writes_artifacts_metadata_and_graph(
 
 
 @pytest.mark.anyio
+async def test_live_ingestion_preserves_original_raw_html_bytes(tmp_path: Path) -> None:
+    html = FIXTURE.read_text(encoding="utf-8")
+    raw_body = html.encode("cp1252")
+    assert raw_body != html.encode("utf-8")
+
+    summary = await run_hearing_batch_ingestion(
+        HearingBatchIngestionOptions(
+            seed_urls=("https://www.regjeringen.no/no/dokumenter/test/id3167072/",),
+            artifact_root=tmp_path / "artifacts",
+        ),
+        page_fetcher=RawBytesFetcher(raw_body, "text/html; charset=windows-1252"),
+    )
+
+    result = summary.manifest.results[0]
+    assert result.document_id == "id3167072"
+    assert result.artifact_manifest_uri is not None
+    manifest_path = Path(urlparse(result.artifact_manifest_uri).path)
+    artifact_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    raw_record = next(item for item in artifact_manifest["artifacts"] if item["role"] == "raw_html")
+    raw_path = Path(urlparse(raw_record["uri"]).path)
+    assert raw_path.read_bytes() == raw_body
+    assert raw_record["checksum_sha256"] == sha256(raw_body).hexdigest()
+    assert artifact_manifest["html_checksum_sha256"] == sha256(raw_body).hexdigest()
+
+
+@pytest.mark.anyio
 async def test_attachment_download_integration_keeps_graph_safe(tmp_path: Path) -> None:
     metadata = LocalJsonMetadataStore(tmp_path / "metadata.json")
     summary = await run_hearing_batch_ingestion(
@@ -85,6 +135,28 @@ async def test_attachment_download_integration_keeps_graph_safe(tmp_path: Path) 
     assert "%PDF-1.4" not in graph
     assert "Departementet sender med dette" not in graph
     assert metadata.count("attachment_download_events") >= 1
+
+
+@pytest.mark.anyio
+async def test_attachment_fetcher_ignored_when_downloads_disabled(tmp_path: Path) -> None:
+    metadata = LocalJsonMetadataStore(tmp_path / "metadata.json")
+    summary = await run_hearing_batch_ingestion(
+        HearingBatchIngestionOptions(
+            seed_urls=("https://www.regjeringen.no/no/dokumenter/test/id3167072/",),
+            artifact_root=tmp_path / "artifacts",
+            metadata_json=tmp_path / "metadata.json",
+            download_attachments=False,
+        ),
+        page_fetcher=FakeFetcher(),
+        attachment_fetcher=RaisingAttachmentFetcher(),
+        metadata_store=metadata,
+    )
+
+    assert summary.pages_succeeded == 1
+    assert summary.attachments_downloaded == 0
+    assert summary.attachments_skipped == 0
+    assert summary.attachments_failed == 0
+    assert metadata.count("attachment_download_events") == 0
 
 
 @pytest.mark.anyio

@@ -115,18 +115,26 @@ async def run_hearing_batch_ingestion(
                     return HearingBatchDocumentResult(source_url=url, status="skipped")
                 fetched = await fetcher.fetch(url)
                 html = fetched.body.decode(_charset(fetched.headers), errors="replace")
+                effective_attachment_fetcher = (
+                    attachment_fetcher if options.download_attachments else None
+                )
+                effective_attachment_options = (
+                    AttachmentDownloadOptions(
+                        fail_fast=options.attachment_fail_fast,
+                        policy=crawl_policy,
+                    )
+                    if effective_attachment_fetcher is not None
+                    else None
+                )
                 artifact_result = await process_hearing_html(
                     html,
                     source_url=fetched.final_url,
                     object_store=object_store,
                     metadata_store=metadata_store,
-                    attachment_fetcher=attachment_fetcher,
-                    attachment_options=AttachmentDownloadOptions(
-                        fail_fast=options.attachment_fail_fast,
-                        policy=crawl_policy,
-                    )
-                    if options.download_attachments and attachment_fetcher is not None
-                    else None,
+                    attachment_fetcher=effective_attachment_fetcher,
+                    attachment_options=effective_attachment_options,
+                    raw_html_bytes=fetched.body,
+                    raw_html_content_type=_content_type(fetched.headers),
                 )
                 graph_path = None
                 if options.graph_output_dir is not None:
@@ -210,3 +218,7 @@ def _total_counts(results: list[HearingBatchDocumentResult]) -> AttachmentResult
         counts.skipped += result.attachment_counts.skipped
         counts.failed += result.attachment_counts.failed
     return counts
+
+
+def _content_type(headers: dict[str, str]) -> str | None:
+    return headers.get("content-type") or headers.get("Content-Type")

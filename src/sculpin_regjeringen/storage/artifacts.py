@@ -66,17 +66,20 @@ async def process_hearing_html(
     attachment_fetcher: AttachmentFetcher | None = None,
     attachment_options: AttachmentDownloadOptions | None = None,
     raw_html_key_hint: str | None = None,
+    raw_html_bytes: bytes | None = None,
+    raw_html_content_type: str | None = None,
 ) -> HearingArtifactResult:
     """Parse fetched hearing HTML and persist raw, canonical, metadata, manifest, and sections."""
 
-    html_bytes = html.encode("utf-8")
+    html_bytes = raw_html_bytes if raw_html_bytes is not None else html.encode("utf-8")
+    html_content_type = raw_html_content_type or "text/html; charset=utf-8"
     processed_at = datetime.now(UTC).isoformat()
     parser = HearingPageParser()
     key_hint = raw_html_key_hint or source_url.rstrip("/").split("/")[-1] or "page"
     raw_object = object_store.put_object(
         f"raw-html/{key_hint}/page.html",
         html_bytes,
-        content_type="text/html; charset=utf-8",
+        content_type=html_content_type,
     )
     document = parser.parse(
         html,
