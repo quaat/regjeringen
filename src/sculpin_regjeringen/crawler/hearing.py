@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from urllib.parse import parse_qs, urlparse
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from pydantic import BaseModel, Field
 
 from sculpin_regjeringen.config import DEFAULT_SETTINGS
@@ -140,7 +140,7 @@ def _page_number_from_url(url: str) -> int:
         return 1
 
 
-def _select_text(node: BeautifulSoup, selector: str) -> str:
+def _select_text(node: BeautifulSoup | Tag, selector: str) -> str:
     selected = node.select_one(selector)
     if selected is None:
         return ""

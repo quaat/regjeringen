@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 
 from sculpin_regjeringen.crawler.source_audit import SourceAuditOptions, run_source_audit_sync
+from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
 
 app = typer.Typer(help="Ingest and organize regjeringen.no documents for Sculpin.")
 
@@ -46,10 +47,25 @@ def parse_fixture(
 ) -> None:
     """Parse a saved fixture into the canonical document model."""
 
-    typer.echo(
-        "Fixture parser scaffold is ready. "
-        f"fixture={fixture} document_type={document_type} output={output}"
+    if document_type != "hearing":
+        typer.echo(f"Unsupported document type: {document_type}", err=True)
+        raise typer.Exit(code=2)
+
+    html = fixture.read_text(encoding="utf-8")
+    document_id = fixture.parent.name
+    source_url = f"https://www.regjeringen.no/no/dokumenter/fixture/{document_id}/"
+    document = HearingPageParser().parse(
+        html,
+        source_url=source_url,
+        source_artifact_uri=fixture.resolve().as_uri(),
     )
+    payload = document.model_dump_json(indent=2)
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload + "\n", encoding="utf-8")
+        typer.echo(f"Wrote parsed fixture: {output}")
+    else:
+        typer.echo(payload)
 
 
 @app.command("export-graph")
