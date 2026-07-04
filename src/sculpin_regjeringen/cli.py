@@ -8,7 +8,12 @@ from typing import Annotated
 import typer
 
 from sculpin_regjeringen.crawler.source_audit import SourceAuditOptions, run_source_audit_sync
+from sculpin_regjeringen.graph.mapping import serialize_document_turtle
+from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
+from sculpin_regjeringen.storage.artifacts import write_hearing_fixture_artifacts
+from sculpin_regjeringen.storage.local_object_store import LocalObjectStore
+from sculpin_regjeringen.storage.postgres import LocalJsonMetadataStore
 
 app = typer.Typer(help="Ingest and organize regjeringen.no documents for Sculpin.")
 
@@ -68,18 +73,63 @@ def parse_fixture(
         typer.echo(payload)
 
 
+@app.command("process-fixture")
+def process_fixture(
+    fixture: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
+    artifact_root: Annotated[Path, typer.Option()] = Path("data/local-artifacts"),
+    metadata_db: Annotated[Path, typer.Option()] = Path("data/local-metadata/metadata.json"),
+    graph_output: Annotated[Path | None, typer.Option()] = None,
+) -> None:
+    """Parse a hearing fixture and write local artifacts, metadata, and optional Turtle."""
+
+    object_store = LocalObjectStore(artifact_root / "objects")
+    metadata_store = LocalJsonMetadataStore(metadata_db)
+    result = write_hearing_fixture_artifacts(
+        fixture, object_store=object_store, metadata_store=metadata_store
+    )
+    if graph_output is not None:
+        serialize_document_turtle(result.document, graph_output)
+        typer.echo(f"Wrote Turtle graph: {graph_output}")
+    typer.echo(f"Wrote canonical document: {result.document_json_uri}")
+    typer.echo(f"Wrote artifact manifest: {result.manifest_uri}")
+    if result.manifest.metadata is not None:
+        typer.echo(
+            f"Metadata version: {result.manifest.metadata.version_id} "
+            f"inserted={result.manifest.metadata.inserted_version}"
+        )
+
+
 @app.command("export-graph")
 def export_graph(
-    document_id: Annotated[str, typer.Option()],
-    format: Annotated[str, typer.Option()] = "turtle",
     output: Annotated[Path, typer.Option()] = Path("tmp/document.ttl"),
+    document_json: Annotated[Path | None, typer.Option(exists=True, dir_okay=False)] = None,
+    fixture: Annotated[Path | None, typer.Option(exists=True, dir_okay=False)] = None,
+    document_type: Annotated[str, typer.Option()] = "hearing",
 ) -> None:
-    """Export canonical metadata as Sculpin graph triples."""
+    """Export parsed hearing metadata and source pointers as Turtle."""
 
-    typer.echo(
-        "Graph export scaffold is ready. "
-        f"document_id={document_id} format={format} output={output}"
-    )
+    if document_json is None and fixture is None:
+        typer.echo("Provide --document-json or --fixture.", err=True)
+        raise typer.Exit(code=2)
+    if document_json is not None and fixture is not None:
+        typer.echo("Use only one of --document-json or --fixture.", err=True)
+        raise typer.Exit(code=2)
+    if document_type != "hearing":
+        typer.echo(f"Unsupported document type: {document_type}", err=True)
+        raise typer.Exit(code=2)
+
+    if document_json is not None:
+        document = HearingDocument.model_validate_json(document_json.read_text(encoding="utf-8"))
+    else:
+        assert fixture is not None
+        html = fixture.read_text(encoding="utf-8")
+        document = HearingPageParser().parse(
+            html,
+            source_url=f"https://www.regjeringen.no/no/dokumenter/fixture/{fixture.parent.name}/",
+            source_artifact_uri=fixture.resolve().as_uri(),
+        )
+    serialize_document_turtle(document, output)
+    typer.echo(f"Wrote Turtle graph: {output}")
 
 
 if __name__ == "__main__":
