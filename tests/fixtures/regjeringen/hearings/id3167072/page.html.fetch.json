@@ -1,0 +1,29 @@
+{
+  "request_url": "https://www.regjeringen.no/no/dokumenter/kort-horing-avskogingsforordningen-og-forbud-mot-eksport-til-tredjeland/id3167072/",
+  "final_url": "https://www.regjeringen.no/no/dokumenter/kort-horing-avskogingsforordningen-og-forbud-mot-eksport-til-tredjeland/id3167072/",
+  "status_code": 200,
+  "headers": {
+    "date": "Sat, 04 Jul 2026 08:41:55 GMT",
+    "content-type": "text/html; charset=utf-8",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "cache-control": "public,max-age=15",
+    "vary": "accept-encoding",
+    "set-cookie": "ARRAffinity=8f60b4b980ecbcf2fd9b03ce93c680d6b1fafced4d2ba05719358001084dbcc8;Path=/;HttpOnly;Secure;Domain=www.regjeringen.no, ARRAffinitySameSite=8f60b4b980ecbcf2fd9b03ce93c680d6b1fafced4d2ba05719358001084dbcc8;Path=/;HttpOnly;SameSite=None;Secure;Domain=www.regjeringen.no, __cf_bm=o3RoIzYKtz3KrtnGaW8s1EElBg84BleTXjss7.BaEfI-1783154515.2340295-1.0.1.1-KdoEUPuj1zvOSeeaDpSxBVQVUBHiuA2TxENNCV3sx2J3LsNl5VPoPZDHSVb7pQLB01uHxCWgc2rjuVr3YD9rYZtzOgxfJAyOLnAIbKWdE8pfSqAOBb3CxuvZqOjy2Q_I; HttpOnly; SameSite=None; Secure; Path=/; Domain=www.regjeringen.no; Expires=Sat, 04 Jul 2026 09:11:55 GMT",
+    "strict-transport-security": "max-age=15552000",
+    "request-context": "appId=cid-v1:6f4928bd-f664-43ef-97e9-3ba28bae17d8",
+    "x-xss-protection": "1; mode=block",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "referrer-policy": "no-referrer, same-origin",
+    "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "cf-cache-status": "BYPASS",
+    "content-encoding": "gzip",
+    "server": "cloudflare",
+    "cf-ray": "a15cd568397e23eb-OSL",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "fetched_at": "2026-07-04T08:41:55.685952+00:00",
+  "redirect_chain": [],
+  "sha256": "bfd892d128c6fae70e6a42401a1e0f1f0c13425a73ce794996e22836a25ba405"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Regjeringen Ingestion"
+  short_description: "Build regjeringen.no ingestion workflows"
+  default_prompt: "Use $regjeringen-ingestion to plan or implement the regjeringen.no ingestion MVP."

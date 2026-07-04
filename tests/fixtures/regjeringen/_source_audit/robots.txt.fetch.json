@@ -1,0 +1,32 @@
+{
+  "request_url": "https://www.regjeringen.no/robots.txt",
+  "final_url": "https://www.regjeringen.no/robots.txt",
+  "status_code": 200,
+  "headers": {
+    "date": "Sat, 04 Jul 2026 08:41:54 GMT",
+    "content-type": "text/plain",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "vary": "accept-encoding",
+    "cache-control": "public, max-age=604800",
+    "last-modified": "Wed, 17 Jun 2026 12:29:10 GMT",
+    "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "strict-transport-security": "max-age=15552000",
+    "request-context": "appId=cid-v1:6f4928bd-f664-43ef-97e9-3ba28bae17d8",
+    "x-xss-protection": "1; mode=block",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "referrer-policy": "no-referrer, same-origin",
+    "set-cookie": "__cf_bm=.XrwlW0Im4ca.a9D0uf8WaCP6RGHEvZhMY5uPhqyCEo-1783154514.4023035-1.0.1.1-DS5PVJfq66xeO5fhlsuzdArPGgY.PrkbraiY0WvXG4s.sHuUezxB4rHb6XuT3NWWZS0agUW0vDBrqyZQQNv6jpq7A_cF3jrA9mH3m5pQKYnCJPxGDhL1Id44eGtcgpWv; HttpOnly; SameSite=None; Secure; Path=/; Domain=www.regjeringen.no; Expires=Sat, 04 Jul 2026 09:11:54 GMT",
+    "age": "234431",
+    "cf-cache-status": "HIT",
+    "etag": "W/\"1dcfe54e5c6eb2d\"",
+    "content-encoding": "gzip",
+    "server": "cloudflare",
+    "cf-ray": "a15cd5630bfcb4f3-OSL",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "fetched_at": "2026-07-04T08:41:54.417558+00:00",
+  "redirect_chain": [],
+  "sha256": "53044899038823410336a7026d60f511f2e37a318695a20959983de66c1b00c1"
+}

@@ -1,0 +1,273 @@
+{
+  "crawl_batch_id": "source-audit-20260704T084154Z",
+  "generated_at": "2026-07-04T08:41:54.418644Z",
+  "robots_url": "https://www.regjeringen.no/robots.txt",
+  "sitemap_urls": [
+    "https://www.regjeringen.no/globalassets/sitemap/sitemap.xml"
+  ],
+  "disallowed_patterns": [
+    "/*/?documenttype",
+    "/*/?topic",
+    "/*/?ownerid",
+    "/*/?from",
+    "/*/?to",
+    "/*/?government",
+    "/*/?utid",
+    "/*/?sesjon",
+    "/*/?type",
+    "/*/?law",
+    "/*/?county",
+    "/*/?term",
+    "/*/?sortby",
+    "/*/?sort",
+    "/*/?expand",
+    "/*/?querystring",
+    "/*/?isfilteropen",
+    "/*/?pageRef",
+    "/*/?reg_oss",
+    "/*/?tema",
+    "/*/?q",
+    "/*/?bq",
+    "/*/?uid",
+    "/*/?docid",
+    "/*/?personid",
+    "/*/?eventId",
+    "/*.xhtml$",
+    "/contentassets/*.xml$",
+    "/globalassets/upload/*.xml$",
+    "/globalassets/departementene/*.xml$",
+    "/*/?cedit",
+    "/*&cedit",
+    "/Utilities/RSSEngine/*",
+    "/*/?consterm",
+    "/api/*",
+    "/no/api/*",
+    "/nb/api/*",
+    "/nn/api/*",
+    "/se/api/*",
+    "/en/api/*",
+    "/no/dokumentarkiv/*",
+    "/en/historical-archive/*",
+    "/se/dokumeantavuorka/*"
+  ],
+  "categories": [
+    {
+      "category": "hearing",
+      "status": "implemented",
+      "listing_pages_fetched": 1,
+      "discovered_urls": 20,
+      "fixtures_saved": [
+        {
+          "url": "https://www.regjeringen.no/no/dokument/hoyringar/id1763/",
+          "path": "tests/fixtures/regjeringen/hearings/_listing/page-001.html",
+          "sha256": "sha256:5dbd0ef7ad3a44602d198353ced8bb76580c7a451632804603d1c8622589876d",
+          "status_code": 200
+        },
+        {
+          "url": "https://www.regjeringen.no/no/dokumenter/hoyring-framlegg-om-presiseringar-i-reglane-om-nav-si-opplysingsplikt-overfor-skattestyresmaktene/id3168525/",
+          "path": "tests/fixtures/regjeringen/hearings/id3168525/page.html",
+          "sha256": "sha256:3db0745db448ceca3aea92ce2a7a5db4635e70d9fcbd7bc60e484871d8101dd3",
+          "status_code": 200
+        },
+        {
+          "url": "https://www.regjeringen.no/no/dokumenter/kort-horing-avskogingsforordningen-og-forbud-mot-eksport-til-tredjeland/id3167072/",
+          "path": "tests/fixtures/regjeringen/hearings/id3167072/page.html",
+          "sha256": "sha256:bfd892d128c6fae70e6a42401a1e0f1f0c13425a73ce794996e22836a25ba405",
+          "status_code": 200
+        },
+        {
+          "url": "https://www.regjeringen.no/no/dokumenter/horing-av-forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme/id3168423/",
+          "path": "tests/fixtures/regjeringen/hearings/id3168423/page.html",
+          "sha256": "sha256:5148b4ebb7e77a75c698859cd6fb97108c521d236d50ae5ab753910e71cc78bf",
+          "status_code": 200
+        }
+      ],
+      "listing_items": [
+        {
+          "url": "https://www.regjeringen.no/no/dokumenter/hoyring-framlegg-om-presiseringar-i-reglane-om-nav-si-opplysingsplikt-overfor-skattestyresmaktene/id3168525/",
+          "document_id": "id3168525",
+          "title": "Høyring – framlegg om presiseringar i reglane om Nav si opplysingsplikt overfor skattestyresmaktene",
+          "publication_date": "2026-07-03",
+          "departments": [
+            "Finansdepartementet"
+          ],
+          "document_type": "Høyring",
+          "deadline": "2026-08-14",
+          "status": "På høyring",
+          "summary": "Finansdepartementet sender med dette på høyring framlegg om å presisere Nav si opplysingsplikt overfor skattestyresmaktene."
+        },
+        {
+          "url": "https://www.regjeringen.no/no/dokumenter/kort-horing-avskogingsforordningen-og-forbud-mot-eksport-til-tredjeland/id3167072/",
+          "document_id": "id3167072",
+          "title": "Kort høring - Avskogingsforordningen og forbud mot eksport til tredjeland",
+          "publication_date": "2026-07-03",
+          "departments": [
+            "Klima- og miljødepartementet"
+          ],
+          "document_type": "Høring",
+          "deadline": "2026-08-07",
+          "status": "På høring",
+          "summary": "Denne høringen gjelder innføring av forbud mot eksport til tredjeland av varer som omfattes både av avskogingsforordningen og av EØS-avtalen."
+        },
+        {
+          "url": "https://www.regjeringen.no/no/dokumenter/horing-av-forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme/id3168423/",
+          "document_id": "id3168423",
+          "title": "Høring av forslag til endringer i forskrift om kost-nytteanalyse av mulighetene for å utnytte overskuddsvarme",
+          "publication_date": "2026-07-03",
+          "departments": [
+            "Energidepartementet"
+          ],
+          "document_type": "Høring",
+          "deadline": "2026-10-01",
+          "status": "På høring",
+          "summary": "Energidepartementet sender med dette på høring forslag om endringer i forskrift om kost-nytteanalyse av mulighetene for å utnytte overskuddsvarme (heretter forskrift om overskuddsvarme)."
+        }
+      ],
+      "detail_pages": [
+        {
+          "source_url": "https://www.regjeringen.no/no/dokumenter/hoyring-framlegg-om-presiseringar-i-reglane-om-nav-si-opplysingsplikt-overfor-skattestyresmaktene/id3168525/",
+          "document_id": "id3168525",
+          "html_lang": "nn",
+          "title": "Høyring – framlegg om presiseringar i reglane om Nav si opplysingsplikt overfor skattestyresmaktene",
+          "canonical_url": "https://www.regjeringen.no/no/dokumenter/hoyring-framlegg-om-presiseringar-i-reglane-om-nav-si-opplysingsplikt-overfor-skattestyresmaktene/id3168525/",
+          "meta_last_modified": "Fri, 03 Jul 2026 14:35:59 GMT",
+          "headings": [
+            "Du er her:",
+            "Høyringsbrev",
+            "Høyringsnotat",
+            "Høyringsinstansar",
+            "Tema",
+            "Kontakt",
+            "Om nettstaden"
+          ],
+          "attachments": [
+            {
+              "label": "Høyringsnotat.pdf",
+              "url": "https://www.regjeringen.no/contentassets/cbf35bbc33a247cba9862b4548673d7e/hoyringsnotat.pdf"
+            }
+          ],
+          "response_links": [
+            {
+              "label": "Send inn høyringssvar",
+              "url": "https://svar.regjeringen.no/nn/registrer_horingsuttalelse/H3168525/"
+            }
+          ],
+          "related_links": [],
+          "json_ld_blocks": 1
+        },
+        {
+          "source_url": "https://www.regjeringen.no/no/dokumenter/kort-horing-avskogingsforordningen-og-forbud-mot-eksport-til-tredjeland/id3167072/",
+          "document_id": "id3167072",
+          "html_lang": "nb",
+          "title": "Kort høring - Avskogingsforordningen og forbud mot eksport til tredjeland",
+          "canonical_url": "https://www.regjeringen.no/no/dokumenter/kort-horing-avskogingsforordningen-og-forbud-mot-eksport-til-tredjeland/id3167072/",
+          "meta_last_modified": "Fri, 03 Jul 2026 14:00:55 GMT",
+          "headings": [
+            "Du er her:",
+            "Høringsbrev",
+            "Høringsnotat",
+            "Høringsinstanser",
+            "Tema",
+            "Relatert",
+            "Kontakt",
+            "Om nettstedet"
+          ],
+          "attachments": [
+            {
+              "label": "Høringsnotat",
+              "url": "https://www.regjeringen.no/contentassets/b04cfc23c69343ef800ce6a45f8cc456/horingsnotat-avskogingsforordningen-eksport-til-tredjeland-03.07.2026.pdf"
+            }
+          ],
+          "response_links": [
+            {
+              "label": "Send inn høringssvar",
+              "url": "https://svar.regjeringen.no/nb/registrer_horingsuttalelse/H3167072/"
+            }
+          ],
+          "related_links": [],
+          "json_ld_blocks": 1
+        },
+        {
+          "source_url": "https://www.regjeringen.no/no/dokumenter/horing-av-forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme/id3168423/",
+          "document_id": "id3168423",
+          "html_lang": "nb",
+          "title": "Høring av forslag til endringer i forskrift om kost-nytteanalyse av mulighetene for å utnytte overskuddsvarme",
+          "canonical_url": "https://www.regjeringen.no/no/dokumenter/horing-av-forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme/id3168423/",
+          "meta_last_modified": "Fri, 03 Jul 2026 14:56:58 GMT",
+          "headings": [
+            "Du er her:",
+            "Høringsbrev",
+            "Høringsnotat",
+            "Høringsinstanser",
+            "Om nettstedet"
+          ],
+          "attachments": [
+            {
+              "label": "Høringsnotat_Forslag til endringer i forskrift om kost-nytteanalyse av mulighetene for å utnytte overskuddsvarme.pdf",
+              "url": "https://www.regjeringen.no/contentassets/08e07195f28943d19a48d70011ee233d/horingsnotat_forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme.pdf"
+            }
+          ],
+          "response_links": [
+            {
+              "label": "Send inn høringssvar",
+              "url": "https://svar.regjeringen.no/nb/registrer_horingsuttalelse/H3168423/"
+            }
+          ],
+          "related_links": [],
+          "json_ld_blocks": 1
+        }
+      ],
+      "notes": [
+        "Listing page 1: 20 items; total_results=6960; total_pages=348"
+      ]
+    },
+    {
+      "category": "input",
+      "status": "pending",
+      "listing_pages_fetched": 0,
+      "discovered_urls": 0,
+      "fixtures_saved": [],
+      "listing_items": [],
+      "detail_pages": [],
+      "notes": [
+        "Only hearing source audit is implemented in the first milestone."
+      ]
+    },
+    {
+      "category": "proposition",
+      "status": "pending",
+      "listing_pages_fetched": 0,
+      "discovered_urls": 0,
+      "fixtures_saved": [],
+      "listing_items": [],
+      "detail_pages": [],
+      "notes": [
+        "Only hearing source audit is implemented in the first milestone."
+      ]
+    },
+    {
+      "category": "storting_message",
+      "status": "pending",
+      "listing_pages_fetched": 0,
+      "discovered_urls": 0,
+      "fixtures_saved": [],
+      "listing_items": [],
+      "detail_pages": [],
+      "notes": [
+        "Only hearing source audit is implemented in the first milestone."
+      ]
+    },
+    {
+      "category": "nou",
+      "status": "pending",
+      "listing_pages_fetched": 0,
+      "discovered_urls": 0,
+      "fixtures_saved": [],
+      "listing_items": [],
+      "detail_pages": [],
+      "notes": [
+        "Only hearing source audit is implemented in the first milestone."
+      ]
+    }
+  ]
+}

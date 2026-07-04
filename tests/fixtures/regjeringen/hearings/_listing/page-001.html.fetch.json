@@ -1,0 +1,29 @@
+{
+  "request_url": "https://www.regjeringen.no/no/dokument/hoyringar/id1763/",
+  "final_url": "https://www.regjeringen.no/no/dokument/hoyringar/id1763/",
+  "status_code": 200,
+  "headers": {
+    "date": "Sat, 04 Jul 2026 08:41:54 GMT",
+    "content-type": "text/html; charset=utf-8",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "cache-control": "public,max-age=5",
+    "vary": "accept-encoding",
+    "strict-transport-security": "max-age=15552000",
+    "request-context": "appId=cid-v1:6f4928bd-f664-43ef-97e9-3ba28bae17d8",
+    "x-xss-protection": "1; mode=block",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "referrer-policy": "no-referrer, same-origin",
+    "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "set-cookie": "ARRAffinity=8f60b4b980ecbcf2fd9b03ce93c680d6b1fafced4d2ba05719358001084dbcc8;Path=/;HttpOnly;Secure;Domain=www.regjeringen.no, ARRAffinitySameSite=8f60b4b980ecbcf2fd9b03ce93c680d6b1fafced4d2ba05719358001084dbcc8;Path=/;HttpOnly;SameSite=None;Secure;Domain=www.regjeringen.no, __cf_bm=bMC9CYSzrkRF_TQH30FiHWudnmjpef.wrbINVD7s3nE-1783154514.4568262-1.0.1.1-c8dM.VQ2GccJPfShTQTaDDQh9WHznKIv1nj25MdRHqRYaSds9Hb_069F8HsDaY2zGPSka57FpvtjoKi8pjMBHxZF.nTaW7A2o1aYX_S0T56G.VWsNmndDlxKgYMaUnbP; HttpOnly; SameSite=None; Secure; Path=/; Domain=www.regjeringen.no; Expires=Sat, 04 Jul 2026 09:11:54 GMT",
+    "cf-cache-status": "BYPASS",
+    "content-encoding": "gzip",
+    "server": "cloudflare",
+    "cf-ray": "a15cd5635be45696-OSL",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "fetched_at": "2026-07-04T08:41:54.706018+00:00",
+  "redirect_chain": [],
+  "sha256": "5dbd0ef7ad3a44602d198353ced8bb76580c7a451632804603d1c8622589876d"
+}

@@ -1,0 +1,11 @@
+.codex/
+.agents/
+.venv/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+*.swp
+tmp/*
+!tmp/.gitkeep
+data/vectordb/

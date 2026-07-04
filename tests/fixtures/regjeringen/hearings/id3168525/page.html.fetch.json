@@ -1,0 +1,29 @@
+{
+  "request_url": "https://www.regjeringen.no/no/dokumenter/hoyring-framlegg-om-presiseringar-i-reglane-om-nav-si-opplysingsplikt-overfor-skattestyresmaktene/id3168525/",
+  "final_url": "https://www.regjeringen.no/no/dokumenter/hoyring-framlegg-om-presiseringar-i-reglane-om-nav-si-opplysingsplikt-overfor-skattestyresmaktene/id3168525/",
+  "status_code": 200,
+  "headers": {
+    "date": "Sat, 04 Jul 2026 08:41:55 GMT",
+    "content-type": "text/html; charset=utf-8",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "cache-control": "public,max-age=15",
+    "vary": "accept-encoding",
+    "set-cookie": "ARRAffinity=372ec5649d88be74216a82c59c21ad06fbacba65ee890219df2539b2dde93ebd;Path=/;HttpOnly;Secure;Domain=www.regjeringen.no, ARRAffinitySameSite=372ec5649d88be74216a82c59c21ad06fbacba65ee890219df2539b2dde93ebd;Path=/;HttpOnly;SameSite=None;Secure;Domain=www.regjeringen.no, __cf_bm=bqNWsx6ePMDAfi.NEWXZJmQWZ16CmxChHgMW6_KFudQ-1783154514.8396761-1.0.1.1-ZH.4phhYjYie2DhFqEA9xg7kNK4dQg.Q3ENtsuus2L9sHkDq9UYMtL9qbCJgU714VKwgx_XrnOYisLWfFk00LpDDGOTYxzAYnthxkXyn98aIxQ9.rN2YRKJ76bT27zaQ; HttpOnly; SameSite=None; Secure; Path=/; Domain=www.regjeringen.no; Expires=Sat, 04 Jul 2026 09:11:55 GMT",
+    "strict-transport-security": "max-age=15552000",
+    "request-context": "appId=cid-v1:6f4928bd-f664-43ef-97e9-3ba28bae17d8",
+    "x-xss-protection": "1; mode=block",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "referrer-policy": "no-referrer, same-origin",
+    "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "cf-cache-status": "BYPASS",
+    "content-encoding": "gzip",
+    "server": "cloudflare",
+    "cf-ray": "a15cd565bca70b49-OSL",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "fetched_at": "2026-07-04T08:41:55.135386+00:00",
+  "redirect_chain": [],
+  "sha256": "3db0745db448ceca3aea92ce2a7a5db4635e70d9fcbd7bc60e484871d8101dd3"
+}

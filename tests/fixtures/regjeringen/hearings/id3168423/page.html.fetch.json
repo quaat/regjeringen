@@ -1,0 +1,29 @@
+{
+  "request_url": "https://www.regjeringen.no/no/dokumenter/horing-av-forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme/id3168423/",
+  "final_url": "https://www.regjeringen.no/no/dokumenter/horing-av-forslag-til-endringer-i-forskrift-om-kost-nytteanalyse-av-mulighetene-for-a-utnytte-overskuddsvarme/id3168423/",
+  "status_code": 200,
+  "headers": {
+    "date": "Sat, 04 Jul 2026 08:41:56 GMT",
+    "content-type": "text/html; charset=utf-8",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "cache-control": "public,max-age=15",
+    "vary": "accept-encoding",
+    "strict-transport-security": "max-age=15552000",
+    "request-context": "appId=cid-v1:6f4928bd-f664-43ef-97e9-3ba28bae17d8",
+    "x-xss-protection": "1; mode=block",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "referrer-policy": "no-referrer, same-origin",
+    "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+    "set-cookie": "ARRAffinity=840e9decf1990e96921a12ab61510682796166f08e3928c475cb1e22400e99fe;Path=/;HttpOnly;Secure;Domain=www.regjeringen.no, ARRAffinitySameSite=840e9decf1990e96921a12ab61510682796166f08e3928c475cb1e22400e99fe;Path=/;HttpOnly;SameSite=None;Secure;Domain=www.regjeringen.no, __cf_bm=zVNwxfYSdpnOgkyDL1Diy4xC_oIQuWWq7fdElGxaBv8-1783154515.8352396-1.0.1.1-kKr0.Ux4TXhwBxwWWwzg514vchw.3A99IY9lyQqlBeYw98vEWRWae3xaFOeEEvevMjvJMPIntCYYnNl5WK0YukVYVnDgVtysmuosIpwlGr3TIGDsfQxWo2XKypaPEt7Z; HttpOnly; SameSite=None; Secure; Path=/; Domain=www.regjeringen.no; Expires=Sat, 04 Jul 2026 09:11:56 GMT",
+    "cf-cache-status": "BYPASS",
+    "content-encoding": "gzip",
+    "server": "cloudflare",
+    "cf-ray": "a15cd56bfc1b23eb-OSL",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "fetched_at": "2026-07-04T08:41:56.032920+00:00",
+  "redirect_chain": [],
+  "sha256": "5148b4ebb7e77a75c698859cd6fb97108c521d236d50ae5ab753910e71cc78bf"
+}
