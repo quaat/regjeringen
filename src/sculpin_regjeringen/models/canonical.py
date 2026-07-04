@@ -53,6 +53,7 @@ class DocumentSection(BaseModel):
     section_id: str
     heading: str
     heading_path: list[str] = Field(default_factory=list)
+    visible_text: str | None = None
     text_object_uri: str | None = None
     source_span_id: str | None = None
     provenance: list[FieldProvenance] = Field(default_factory=list)
