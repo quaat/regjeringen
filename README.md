@@ -55,10 +55,9 @@ sculpin-regjeringen process-fixture \
   --graph-output tmp/id3167072.ttl
 ```
 
-This writes raw HTML, canonical `document.json`, section text files, and a manifest to
-a local SHA-256 content-addressed object layout. Attachment files can now be downloaded by the attachment downloader into content-addressed object storage; fixture processing still leaves them metadata-only unless that downloader is invoked. The graph export contains metadata and source/text-object
-pointers only; raw HTML, section text, attachment bytes, extracted full text, and chunks
-remain outside the graph.
+By default this remains offline: it writes raw HTML, canonical `document.json`, section text files, and a manifest to a local SHA-256 content-addressed object layout without fetching attachment bytes. Enable live attachment downloads explicitly with `--download-attachments` and, for tests or strict runs, optionally `--attachment-fail-fast`. Live downloads respect robots policy by default; use `--no-respect-robots` only for controlled tests.
+
+Downloaded attachments are stored as immutable object-store bytes and the canonical document records only `final_url`, `checksum_sha256`, `size_bytes`, `media_type`, and `object_uri`. PostgreSQL stores normalized document metadata, attachment metadata, provenance, extraction runs, and attachment download events. Graph export contains metadata plus source/object pointers only; raw HTML, section text, attachment bytes, extracted full text, and chunks remain outside the graph.
 
 Idempotency boundary for this local workflow:
 

@@ -2,16 +2,23 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 from typing import Annotated
 
+import httpx
 import typer
 
+from sculpin_regjeringen.crawler.attachment_downloader import AttachmentDownloadOptions
+from sculpin_regjeringen.crawler.fetcher import HttpxFetcher
+from sculpin_regjeringen.crawler.robots import CrawlPolicy, build_robots_parser
 from sculpin_regjeringen.crawler.source_audit import SourceAuditOptions, run_source_audit_sync
 from sculpin_regjeringen.graph.mapping import serialize_document_turtle
 from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
-from sculpin_regjeringen.storage.artifacts import write_hearing_fixture_artifacts
+from sculpin_regjeringen.storage.artifacts import (
+    process_hearing_fixture,
+)
 from sculpin_regjeringen.storage.local_metadata_store import LocalJsonMetadataStore
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore
 
@@ -79,13 +86,38 @@ def process_fixture(
     artifact_root: Annotated[Path, typer.Option()] = Path("data/local-artifacts"),
     metadata_db: Annotated[Path, typer.Option()] = Path("data/local-metadata/metadata.json"),
     graph_output: Annotated[Path | None, typer.Option()] = None,
+    download_attachments: Annotated[
+        bool, typer.Option("--download-attachments/--no-download-attachments")
+    ] = False,
+    attachment_fail_fast: Annotated[
+        bool, typer.Option("--attachment-fail-fast/--no-attachment-fail-fast")
+    ] = False,
+    respect_robots: Annotated[
+        bool, typer.Option("--respect-robots/--no-respect-robots")
+    ] = True,
 ) -> None:
     """Parse a hearing fixture and write local artifacts, metadata, and optional Turtle."""
 
     object_store = LocalObjectStore(artifact_root / "objects")
     metadata_store = LocalJsonMetadataStore(metadata_db)
-    result = write_hearing_fixture_artifacts(
-        fixture, object_store=object_store, metadata_store=metadata_store
+    attachment_fetcher = None
+    attachment_options = None
+    if download_attachments:
+        user_agent = "sculpin-regjeringen-ingest/0.1 (+https://github.com/quaat/regjeringen)"
+        attachment_fetcher = HttpxFetcher(user_agent=user_agent)
+        policy = _live_crawl_policy(user_agent) if respect_robots else None
+        attachment_options = AttachmentDownloadOptions(
+            fail_fast=attachment_fail_fast,
+            policy=policy,
+        )
+    result = asyncio.run(
+        process_hearing_fixture(
+            fixture,
+            object_store=object_store,
+            metadata_store=metadata_store,
+            attachment_fetcher=attachment_fetcher,
+            attachment_options=attachment_options,
+        )
     )
     if graph_output is not None:
         serialize_document_turtle(result.document, graph_output)
@@ -130,6 +162,16 @@ def export_graph(
         )
     serialize_document_turtle(document, output)
     typer.echo(f"Wrote Turtle graph: {output}")
+
+
+def _live_crawl_policy(user_agent: str) -> CrawlPolicy:
+    robots_url = "https://www.regjeringen.no/robots.txt"
+    response = httpx.get(robots_url, headers={"User-Agent": user_agent}, timeout=30.0)
+    response.raise_for_status()
+    return CrawlPolicy(
+        robots=build_robots_parser(robots_url, response.text),
+        user_agent=user_agent,
+    )
 
 
 if __name__ == "__main__":

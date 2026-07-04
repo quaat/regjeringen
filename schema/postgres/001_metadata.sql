@@ -122,11 +122,17 @@ CREATE TABLE IF NOT EXISTS contacts (
 CREATE TABLE IF NOT EXISTS field_provenance (
     document_id TEXT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
     field_path TEXT NOT NULL,
-    source_url TEXT NOT NULL,
-    source_artifact_uri TEXT NOT NULL,
-    css_selector TEXT,
-    source_span_id TEXT,
+    value_hash TEXT NOT NULL,
     extraction_method TEXT NOT NULL,
+    source_artifact_uri TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    css_selector TEXT,
+    heading_path JSONB NOT NULL DEFAULT '[]'::jsonb,
+    char_start INTEGER,
+    char_end INTEGER,
+    page_number INTEGER,
+    quote TEXT,
+    extractor_version TEXT NOT NULL,
     extracted_at TIMESTAMPTZ NOT NULL,
     confidence DOUBLE PRECISION,
     PRIMARY KEY (document_id, field_path, source_artifact_uri)
@@ -154,6 +160,30 @@ CREATE TABLE IF NOT EXISTS fetch_events (
     error_message TEXT
 );
 
+CREATE TABLE IF NOT EXISTS attachment_download_events (
+    attachment_download_event_id BIGSERIAL PRIMARY KEY,
+    version_id TEXT REFERENCES document_versions(version_id) ON DELETE CASCADE,
+    document_id TEXT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
+    attachment_id TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    request_url TEXT NOT NULL,
+    final_url TEXT,
+    status TEXT NOT NULL CHECK (status IN ('downloaded', 'skipped', 'failed')),
+    skipped_reason TEXT,
+    error_type TEXT,
+    error_message TEXT,
+    status_code INTEGER,
+    headers JSONB NOT NULL DEFAULT '{}'::jsonb,
+    redirect_chain JSONB NOT NULL DEFAULT '[]'::jsonb,
+    fetched_at TIMESTAMPTZ,
+    content_type TEXT,
+    media_type TEXT,
+    size_bytes BIGINT,
+    checksum_sha256 TEXT,
+    object_uri TEXT,
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS extraction_runs (
     version_id TEXT PRIMARY KEY REFERENCES document_versions(version_id) ON DELETE CASCADE,
     document_id TEXT NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
@@ -175,5 +205,7 @@ CREATE TABLE IF NOT EXISTS parser_errors (
 
 CREATE INDEX IF NOT EXISTS idx_document_attachments_document ON document_attachments(document_id);
 CREATE INDEX IF NOT EXISTS idx_document_attachments_checksum ON document_attachments(checksum_sha256);
+CREATE INDEX IF NOT EXISTS idx_attachment_download_events_document ON attachment_download_events(document_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_attachment_download_events_idempotent ON attachment_download_events(version_id, attachment_id, status, COALESCE(checksum_sha256, ''), COALESCE(skipped_reason, ''), COALESCE(error_type, ''));
 CREATE INDEX IF NOT EXISTS idx_documents_type_date ON documents(document_type, publication_date DESC);
 CREATE INDEX IF NOT EXISTS idx_fetch_events_request_url ON fetch_events(request_url);

@@ -9,6 +9,7 @@ from typing import Any, Protocol, cast
 
 from pydantic import BaseModel
 
+from sculpin_regjeringen.crawler.attachment_downloader import AttachmentDownloadManifest
 from sculpin_regjeringen.models.canonical import HearingDocument
 
 MINIMUM_TABLES = (
@@ -21,6 +22,7 @@ MINIMUM_TABLES = (
     "fetch_events",
     "extraction_runs",
     "parser_errors",
+    "attachment_download_events",
 )
 
 
@@ -42,6 +44,7 @@ class MetadataStore(Protocol):
         parser_version: str,
         source_artifact_uri: str,
         processed_at: str,
+        attachment_downloads: AttachmentDownloadManifest | None = None,
     ) -> MetadataUpsertResult:
         """Persist parsed hearing metadata idempotently."""
 
@@ -65,6 +68,7 @@ class LocalJsonMetadataStore(MetadataStore):
         parser_version: str,
         source_artifact_uri: str,
         processed_at: str,
+        attachment_downloads: AttachmentDownloadManifest | None = None,
     ) -> MetadataUpsertResult:
         state = self._read()
         documents = state["documents"]
@@ -119,6 +123,22 @@ class LocalJsonMetadataStore(MetadataStore):
                 "document_id": document.document_id,
                 **provenance.model_dump(mode="json"),
             }
+
+        if attachment_downloads is not None:
+            state.setdefault("attachment_download_events", {})
+            state["attachment_download_events"] = {
+                key: value
+                for key, value in state["attachment_download_events"].items()
+                if value["document_id"] != document.document_id
+            }
+            for index, result in enumerate(attachment_downloads.results):
+                state["attachment_download_events"][
+                    f"{version_id}:{index}:{result.attachment_id}"
+                ] = {
+                    "document_id": document.document_id,
+                    "version_id": version_id,
+                    **result.model_dump(mode="json"),
+                }
 
         state["extraction_runs"][version_id] = {
             "document_id": document.document_id,

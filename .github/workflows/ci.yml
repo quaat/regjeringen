@@ -8,6 +8,22 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: regjeringen_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d regjeringen_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      REGJERINGEN_TEST_POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/regjeringen_test
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -18,7 +34,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install package and development dependencies
-        run: python -m pip install -e ".[dev]"
+        run: python -m pip install -e ".[dev,storage]"
 
       - name: Ruff
         run: python -m ruff check . --no-cache
