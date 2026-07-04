@@ -14,6 +14,7 @@ from sculpin_regjeringen.config import DEFAULT_SETTINGS
 from sculpin_regjeringen.crawler.discovery import DiscoveredUrl
 from sculpin_regjeringen.crawler.fetcher import HttpxFetcher
 from sculpin_regjeringen.crawler.robots import CrawlPolicy
+from sculpin_regjeringen.models.urls import any_url
 from sculpin_regjeringen.parsers.html_common import (
     absolute_url,
     extract_document_id,
@@ -100,10 +101,10 @@ def parse_hearing_listing_page(
         status_hint = _extract_status(detail_text)
 
         discovered = DiscoveredUrl(
-            url=detail_url,
-            canonical_candidate=detail_url,
+            url=any_url(detail_url),
+            canonical_candidate=any_url(detail_url),
             source_category="hearing",
-            source_list_url=page_url,
+            source_list_url=any_url(page_url),
             page_number=page_number,
             title_hint=title or None,
             publication_date_hint=date_hint,

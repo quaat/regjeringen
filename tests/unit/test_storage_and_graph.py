@@ -7,8 +7,8 @@ from typer.testing import CliRunner
 from sculpin_regjeringen.cli import app
 from sculpin_regjeringen.graph.mapping import SCGOV, document_to_graph, serialize_document_turtle
 from sculpin_regjeringen.storage.artifacts import write_hearing_fixture_artifacts
+from sculpin_regjeringen.storage.local_metadata_store import LocalJsonMetadataStore
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore
-from sculpin_regjeringen.storage.postgres import LocalJsonMetadataStore
 
 FIXTURE = Path("tests/fixtures/regjeringen/hearings/id3167072/page.html")
 FULL_HEARING_LETTER_TEXT = "Vi viser til Miljødirektoratets brev 19. august 2025"
@@ -41,6 +41,10 @@ def test_fixture_to_artifacts_metadata_and_graph_pipeline_is_idempotent(tmp_path
 
     assert first.document.document_id == "id3167072"
     assert first.manifest.source_artifact_uri == second.manifest.source_artifact_uri
+    first_section_uris = [section.text_object_uri for section in first.document.sections]
+    second_section_uris = [section.text_object_uri for section in second.document.sections]
+    assert first_section_uris == second_section_uris
+    # Manifest/document JSON artifacts include run timestamps/provenance timestamps and may vary.
     assert first.manifest.metadata is not None
     assert second.manifest.metadata is not None
     assert first.manifest.metadata.inserted_version

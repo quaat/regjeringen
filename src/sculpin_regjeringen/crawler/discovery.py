@@ -5,16 +5,16 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, Field
+from pydantic import AnyUrl, BaseModel, Field
 
 SourceCategory = Literal["hearing", "input", "proposition", "storting_message", "nou"]
 
 
 class DiscoveredUrl(BaseModel):
-    url: str
-    canonical_candidate: str | None = None
+    url: AnyUrl
+    canonical_candidate: AnyUrl | None = None
     source_category: SourceCategory
-    source_list_url: str
+    source_list_url: AnyUrl
     page_number: int | None = None
     title_hint: str | None = None
     publication_date_hint: date | None = None

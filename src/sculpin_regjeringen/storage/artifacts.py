@@ -11,8 +11,11 @@ from pydantic import BaseModel, Field
 
 from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
+from sculpin_regjeringen.storage.local_metadata_store import (
+    LocalJsonMetadataStore,
+    MetadataUpsertResult,
+)
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore, StoredObject
-from sculpin_regjeringen.storage.postgres import LocalJsonMetadataStore, MetadataUpsertResult
 
 
 class ArtifactRecord(BaseModel):

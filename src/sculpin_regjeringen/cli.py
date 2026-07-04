@@ -12,8 +12,8 @@ from sculpin_regjeringen.graph.mapping import serialize_document_turtle
 from sculpin_regjeringen.models.canonical import HearingDocument
 from sculpin_regjeringen.parsers.hearing_parser import HearingPageParser
 from sculpin_regjeringen.storage.artifacts import write_hearing_fixture_artifacts
+from sculpin_regjeringen.storage.local_metadata_store import LocalJsonMetadataStore
 from sculpin_regjeringen.storage.local_object_store import LocalObjectStore
-from sculpin_regjeringen.storage.postgres import LocalJsonMetadataStore
 
 app = typer.Typer(help="Ingest and organize regjeringen.no documents for Sculpin.")
 

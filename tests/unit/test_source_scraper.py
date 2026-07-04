@@ -125,3 +125,44 @@ def test_render_markdown_report_includes_pending_categories() -> None:
     assert "### hearing" in report
     assert "### nou" in report
     assert "Status: `pending`" in report
+
+
+def test_settings_reject_invalid_urls() -> None:
+    from pydantic import ValidationError
+
+    from sculpin_regjeringen.config import CategoryUrl, Settings
+
+    try:
+        CategoryUrl(name="bad", url="not a url")
+    except ValidationError:
+        pass
+    else:  # pragma: no cover
+        raise AssertionError("CategoryUrl accepted an invalid URL")
+
+    try:
+        Settings(base_url="ftp://example.com")
+    except ValidationError:
+        pass
+    else:  # pragma: no cover
+        raise AssertionError("Settings accepted a non-HTTP base URL")
+
+
+def test_discovered_url_rejects_invalid_url() -> None:
+    from datetime import UTC, datetime
+
+    from pydantic import ValidationError
+
+    from sculpin_regjeringen.crawler.discovery import DiscoveredUrl
+
+    try:
+        DiscoveredUrl(
+            url="not a url",
+            source_category="hearing",
+            source_list_url="https://www.regjeringen.no/no/dokument/hoyringar/id1763/",
+            discovered_at=datetime.now(UTC),
+            crawl_batch_id="batch",
+        )
+    except ValidationError:
+        pass
+    else:  # pragma: no cover
+        raise AssertionError("DiscoveredUrl accepted an invalid URL")
