@@ -209,7 +209,7 @@ class PostgresMetadataStore:
                     extracted_text_uri, downloaded_at
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    CASE WHEN %s IS NULL THEN NULL ELSE now() END
+                    CASE WHEN %s::text IS NULL THEN NULL ELSE now() END
                 )
                 ON CONFLICT (attachment_id) DO UPDATE SET
                     source_url = EXCLUDED.source_url,
