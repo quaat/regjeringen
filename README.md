@@ -74,3 +74,43 @@ sculpin-regjeringen export-graph \
   --fixture tests/fixtures/regjeringen/hearings/id3167072/page.html \
   --output tmp/id3167072.ttl
 ```
+
+## Hearing batch ingestion
+
+Live hearing ingestion is explicit and production-shaped, but still bounded to graph-safe local exports. Use `ingest-hearings` with either one or more explicit hearing URLs or a newline-delimited URL file:
+
+```bash
+sculpin-regjeringen ingest-hearings \
+  --url https://www.regjeringen.no/no/dokumenter/example/id3167072/ \
+  --artifact-root data/local-artifacts \
+  --metadata-db data/local-metadata/metadata.json \
+  --graph-output-dir tmp/graphs
+```
+
+```bash
+sculpin-regjeringen ingest-hearings \
+  --url-file tmp/hearing-urls.txt \
+  --artifact-root data/local-artifacts \
+  --postgres-dsn "$REGJERINGEN_POSTGRES_DSN" \
+  --graph-output-dir tmp/graphs
+```
+
+Attachment bytes are never downloaded unless requested. When enabled, supported attachments are stored as immutable object-store objects and represented in canonical JSON, metadata, and Turtle only by safe metadata such as checksum, size, media type, URL, and object URI:
+
+```bash
+sculpin-regjeringen ingest-hearings \
+  --url-file tmp/hearing-urls.txt \
+  --artifact-root data/local-artifacts \
+  --metadata-db data/local-metadata/metadata.json \
+  --download-attachments \
+  --respect-robots \
+  --graph-output-dir tmp/graphs
+```
+
+The command respects `regjeringen.no` robots policy by default, uses a clear user agent, enforces a concurrency limit, records per-URL failures in a batch manifest, and continues past failed pages unless `--fail-fast` is set. The summary printed by the command includes attempted/succeeded/failed page counts, attachment downloaded/skipped/failed counts, the metadata backend, artifact root, graph output directory, and batch manifest URI.
+
+Metadata backend selection is explicit: `--postgres-dsn` uses PostgreSQL, `--metadata-db` uses the local JSON store, and omitting both still writes object artifacts, document manifests, graph files when requested, and a batch manifest. Supplying both metadata flags is rejected.
+
+The graph/object-store safety boundary remains unchanged: Turtle output contains metadata and source/object pointers only. Raw HTML, raw attachment bytes, full section text, extracted full text, chunks, embeddings, and vector indexes are not written to the graph.
+
+Deferred Phase 3 work still includes PDF/DOCX full-text extraction, OCR, chunking, vector indexes, embedding storage, agent-facing semantic search tools, and Sculpin backend publication beyond local graph-safe export files/manifests.

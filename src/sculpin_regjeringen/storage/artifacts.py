@@ -57,32 +57,33 @@ class HearingArtifactResult:
     document_json_uri: str
 
 
-async def process_hearing_fixture(
-    fixture: Path,
+async def process_hearing_html(
+    html: str,
     *,
+    source_url: str,
     object_store: LocalObjectStore,
     metadata_store: MetadataStore | None = None,
-    source_url: str | None = None,
     attachment_fetcher: AttachmentFetcher | None = None,
     attachment_options: AttachmentDownloadOptions | None = None,
+    raw_html_key_hint: str | None = None,
+    raw_html_bytes: bytes | None = None,
+    raw_html_content_type: str | None = None,
 ) -> HearingArtifactResult:
-    """Parse a fixture, optionally download attachments, and persist updated outputs."""
+    """Parse fetched hearing HTML and persist raw, canonical, metadata, manifest, and sections."""
 
-    html = fixture.read_text(encoding="utf-8")
-    html_bytes = html.encode("utf-8")
+    html_bytes = raw_html_bytes if raw_html_bytes is not None else html.encode("utf-8")
+    html_content_type = raw_html_content_type or "text/html; charset=utf-8"
     processed_at = datetime.now(UTC).isoformat()
     parser = HearingPageParser()
+    key_hint = raw_html_key_hint or source_url.rstrip("/").split("/")[-1] or "page"
     raw_object = object_store.put_object(
-        f"raw-html/{fixture.parent.name}/page.html",
+        f"raw-html/{key_hint}/page.html",
         html_bytes,
-        content_type="text/html; charset=utf-8",
-    )
-    parse_source_url = (
-        source_url or f"https://www.regjeringen.no/no/dokumenter/fixture/{fixture.parent.name}/"
+        content_type=html_content_type,
     )
     document = parser.parse(
         html,
-        source_url=parse_source_url,
+        source_url=source_url,
         source_artifact_uri=raw_object.uri,
     )
 
@@ -166,10 +167,9 @@ async def process_hearing_fixture(
         attachment_downloads=attachment_downloads,
         metadata=metadata_result,
     )
-    manifest_bytes = manifest.model_dump_json(indent=2).encode("utf-8")
     manifest_object = object_store.put_object(
         f"manifests/{document.document_id}/manifest.json",
-        manifest_bytes,
+        manifest.model_dump_json(indent=2).encode("utf-8"),
         content_type="application/json",
     )
     return HearingArtifactResult(
@@ -179,6 +179,29 @@ async def process_hearing_fixture(
         document_json_uri=document_object.uri,
     )
 
+
+async def process_hearing_fixture(
+    fixture: Path,
+    *,
+    object_store: LocalObjectStore,
+    metadata_store: MetadataStore | None = None,
+    source_url: str | None = None,
+    attachment_fetcher: AttachmentFetcher | None = None,
+    attachment_options: AttachmentDownloadOptions | None = None,
+) -> HearingArtifactResult:
+    """Parse a fixture, optionally download attachments, and persist updated outputs."""
+
+    html = fixture.read_text(encoding="utf-8")
+    parse_source_url = source_url or f"https://www.regjeringen.no/no/dokumenter/fixture/{fixture.parent.name}/"
+    return await process_hearing_html(
+        html,
+        source_url=parse_source_url,
+        object_store=object_store,
+        metadata_store=metadata_store,
+        attachment_fetcher=attachment_fetcher,
+        attachment_options=attachment_options,
+        raw_html_key_hint=fixture.parent.name,
+    )
 
 def write_hearing_fixture_artifacts(
     fixture: Path,
